@@ -5,9 +5,9 @@ pipeline {
     environment {
         AWS_REGION = "us-east-1"
         ACCOUNT_ID = "093359840674"
-        ECR_REPO = "react-app"
-        IMAGE_TAG = "${BUILD_NUMBER}"
-        ECR_URI = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
+        ECR_REPO   = "react-app"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
+        ECR_URI    = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
     }
 
     stages {
@@ -44,37 +44,21 @@ pipeline {
                 }
             }
         }
-		stage('Login ECR') {
-			steps {
-				withCredentials([
-					[$class: 'AmazonWebServicesCredentialsBinding',
-					 credentialsId: 'aws cred']
-				]) {
-					sh '''
-					aws sts get-caller-identity
-					aws ecr get-login-password \
-					--region ${AWS_REGION} | \
-                    docker login \
-                    --username AWS \
-					--password-stdin ${ECR_URI}
-					'''
-				}
-			}
-		}
 
         stage('Login ECR') {
             steps {
                 withCredentials([
-                    usernamePassword(
-                        credentialsId: 'aws cred',
-                        usernameVariable: 'AWS_ACCESS_KEY_ID',
-                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-                    )
+                    [
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws cred'
+                    ]
                 ]) {
                     sh '''
+                        aws sts get-caller-identity
+
                         aws ecr get-login-password \
-                        --region ${AWS_REGION} \
-                        | docker login \
+                        --region ${AWS_REGION} | \
+                        docker login \
                         --username AWS \
                         --password-stdin ${ECR_URI}
                     '''
