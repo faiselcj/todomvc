@@ -5,9 +5,9 @@ pipeline {
     environment {
         AWS_REGION = "us-east-1"
         ACCOUNT_ID = "093359840674"
-        ECR_REPO   = "react-app"
-        IMAGE_TAG  = "${BUILD_NUMBER}"
-        ECR_URI    = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
+        ECR_REPO = "react-app"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+        ECR_URI = "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
     }
 
     stages {
@@ -70,21 +70,43 @@ pipeline {
             steps {
                 sh '''
                     docker tag react-app:${IMAGE_TAG} ${ECR_URI}:${IMAGE_TAG}
+                    docker tag react-app:${IMAGE_TAG} ${ECR_URI}:latest
+
                     docker push ${ECR_URI}:${IMAGE_TAG}
+                    docker push ${ECR_URI}:latest
                 '''
             }
         }
 
         stage('Deploy ECS') {
             steps {
-                sh '''
-                    aws ecs update-service \
-                    --cluster react-cluster \
-                    --service react-service \
-                    --force-new-deployment \
-                    --region ${AWS_REGION}
-                '''
+                withCredentials([
+                    [
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws cred'
+                    ]
+                ]) {
+                    sh '''
+                        aws sts get-caller-identity
+
+                        aws ecs update-service \
+                        --cluster react-cluster \
+                        --service react-service \
+                        --force-new-deployment \
+                        --region ${AWS_REGION}
+                    '''
+                }
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment completed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed. Check logs.'
         }
     }
 }
