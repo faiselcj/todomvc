@@ -18,7 +18,7 @@ pipeline {
                     url: 'https://github.com/faiselcj/todomvc.git'
             }
         }
-
+/*
         stage('Install Dependencies') {
             steps {
                 dir('examples/react') {
@@ -34,7 +34,7 @@ pipeline {
                 }
             }
         }
-
+*/
         stage('Build Docker Image') {
             steps {
                 dir('examples/react') {
