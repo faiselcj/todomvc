@@ -1,4 +1,4 @@
-FROM node:20-alpine AS build
+FROM public.ecr.aws/docker/library/node:20-alpine AS build
 
 WORKDIR /app
 
@@ -8,12 +8,9 @@ RUN npm install
 
 COPY . .
 
-RUN node -v
-RUN npm -v
-RUN cat package.json
 RUN npm run build
 
-FROM nginx:latest
+FROM public.ecr.aws/nginx/nginx:latest
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
