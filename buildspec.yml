@@ -4,14 +4,16 @@ phases:
   pre_build:
     commands:
       - aws --version
-      - ACCOUNT_ID=093359840674
-      - REGION=us-east-1
-      - REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/react-app
-      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
-      - IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
+      - export ACCOUNT_ID=093359840674
+      - export REGION=us-east-1
+      - export REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/react-app
+      - export IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
+
+      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
 
   build:
     commands:
+      - cd examples/react
       - docker build -t react-app .
       - docker tag react-app:latest $REPOSITORY_URI:$IMAGE_TAG
       - docker tag react-app:latest $REPOSITORY_URI:latest
