@@ -8,6 +8,9 @@ RUN npm install
 
 COPY . .
 
+RUN node -v
+RUN npm -v
+RUN cat package.json
 RUN npm run build
 
 FROM nginx:latest
