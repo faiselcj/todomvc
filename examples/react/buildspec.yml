@@ -7,10 +7,8 @@ phases:
       - ACCOUNT_ID=093359840674
       - REGION=us-east-1
       - REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/react-app
-
-      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
-
       - IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
+      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
 
   build:
     commands:
@@ -22,9 +20,9 @@ phases:
     commands:
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
-
-      - printf '[{"name":"react-app","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > $CODEBUILD_SRC_DIR/imagedefinitions.json
+      - printf '[{"name":"react-app","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - cat imagedefinitions.json
 
 artifacts:
   files:
-    - examples/react/imagedefinitions.json
+    - imagedefinitions.json
