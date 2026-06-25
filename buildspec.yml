@@ -4,7 +4,7 @@ env:
   variables:
     ACCOUNT_ID: "093359840674"
     REGION: "us-east-1"
-    REPOSITORY_NAME: "react-app-codebuild"
+    REPOSITORY_NAME: "react-app-codebuil"
 
 phases:
   pre_build:
