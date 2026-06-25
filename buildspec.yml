@@ -6,13 +6,15 @@ phases:
       - aws --version
       - export ACCOUNT_ID=093359840674
       - export REGION=us-east-1
-      - export REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/react-app-codebuil
+      - export REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/react-app-codebuild
       - export IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
 
+      - echo "Logging into ECR..."
       - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
 
   build:
     commands:
+      - echo "Building Docker image..."
       - cd examples/react
       - docker build -t react-app .
       - docker tag react-app:latest $REPOSITORY_URI:$IMAGE_TAG
@@ -20,9 +22,22 @@ phases:
 
   post_build:
     commands:
+      - echo "Pushing Docker images..."
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
+
+      - cd $CODEBUILD_SRC_DIR
+
       - printf '[{"name":"react-app","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+
+      - echo "Current directory:"
+      - pwd
+
+      - echo "Files:"
+      - ls -la
+
+      - echo "Image definitions:"
+      - cat imagedefinitions.json
 
 artifacts:
   files:
