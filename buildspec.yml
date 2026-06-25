@@ -9,50 +9,33 @@ env:
 phases:
   pre_build:
     commands:
-      - echo "========== PRE BUILD =========="
+      - 'echo "========== PRE BUILD =========="'
       - aws --version
-
       - export REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME
       - export IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
-
-      - echo "Repository URI: $REPOSITORY_URI"
-      - echo "Image Tag: $IMAGE_TAG"
-
+      - 'echo "Repository URI = $REPOSITORY_URI"'
+      - 'echo "Image Tag = $IMAGE_TAG"'
       - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
 
   build:
     commands:
-      - echo "========== BUILD =========="
+      - 'echo "========== BUILD =========="'
       - cd examples/react
-
       - pwd
       - ls -la
-
       - docker build -t react-app .
-
       - docker tag react-app:latest $REPOSITORY_URI:$IMAGE_TAG
       - docker tag react-app:latest $REPOSITORY_URI:latest
-
       - docker images
 
   post_build:
     commands:
-      - echo "========== PUSH =========="
-
+      - 'echo "========== POST BUILD =========="'
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
-
-      - cd ../..
-
+      - cd $CODEBUILD_SRC_DIR
       - printf '[{"name":"react-app","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
-
-      - echo "Current directory:"
-      - pwd
-
-      - echo "Files:"
       - ls -la
-
-      - echo "Image definitions:"
       - cat imagedefinitions.json
 
 artifacts:
