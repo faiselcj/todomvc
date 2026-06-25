@@ -6,7 +6,7 @@ phases:
       - aws --version
       - export ACCOUNT_ID=093359840674
       - export REGION=us-east-1
-      - export REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/react-app
+      - export REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com//react-app-codebuild
       - export IMAGE_TAG=$CODEBUILD_BUILD_NUMBER
 
       - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
